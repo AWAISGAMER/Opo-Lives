@@ -1,0 +1,46 @@
+name: Unzip and Build APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # Zip files ko open karke main location par lana
+    - name: Unzip Source Code
+      run: |
+        unzip -o *.zip
+        cd OPOLIVES-main || true
+        unzip -o OPO_LIVE_Flutter_Starter.zip -d ../
+        cd ..
+
+    # Java 17 environment
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    # Flutter SDK setup
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+
+    # Package dependencies download
+    - name: Install Dependencies
+      run: flutter pub get
+
+    # Final APK compile
+    - name: Build APK
+      run: flutter build apk --release
+
+    # Direct Downloadable File Generator
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: OpoLive-Release-APK
+        path: build/app/outputs/flutter-apk/app-release.apk
