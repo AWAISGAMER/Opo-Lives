@@ -12,33 +12,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Step 1: Zip extract karke source code clean karna
+    # Step 1: Subhi ZIP files extract karna aur Flutter root dhoondna
     - name: Extract Source Code
       run: |
-        unzip -o *.zip
-        if [ -d "OPOLIVES-main" ]; then
-          cd OPOLIVES-main
-          if [ -f "OPO_LIVE_Flutter_Starter.zip" ]; then
-            unzip -o OPO_LIVE_Flutter_Starter.zip -d ../
-          fi
-          cd ..
+        # Main ZIP extraction
+        for f in *.zip; do [ -e "$f" ] && unzip -o "$f"; done
+        
+        # Nested ZIP extraction if present
+        find . -name "*.zip" -exec unzip -o {} \;
+        
+        # Find directory containing pubspec.yaml and move files to root if needed
+        PROJECT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+        echo "Found project at: $PROJECT_DIR"
+        
+        if [ "$PROJECT_DIR" != "." ]; then
+          cp -r $PROJECT_DIR/* .
         fi
 
-    # Step 2: Java Setup
+    # Step 2: Java 17 Setup
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
+        distribution: 'temurin'
         java-version: '17'
 
     # Step 3: Flutter Setup
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.0'
         channel: 'stable'
 
-    # Step 4: Flutter pub get
+    # Step 4: Dependencies Install
     - name: Get Dependencies
       run: flutter pub get
 
