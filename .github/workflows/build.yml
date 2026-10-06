@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    # Zip files ko open karke main location par lana
+    # Zip files ko open karke root location par lana
     - name: Unzip Source Code
       run: |
         unzip -o *.zip
@@ -19,8 +19,8 @@ jobs:
         unzip -o OPO_LIVE_Flutter_Starter.zip -d ../
         cd ..
 
-    # Java 17 environment
-    - uses: actions/setup-java@v3
+    # Java 17 setup (@v4)
+    - uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -30,17 +30,17 @@ jobs:
       with:
         channel: 'stable'
 
-    # Package dependencies download
+    # Dependencies download
     - name: Install Dependencies
       run: flutter pub get
 
-    # Final APK compile
+    # Final APK Compile
     - name: Build APK
       run: flutter build apk --release
 
-    # Direct Downloadable File Generator
+    # Artifact Release File Generator (@v4)
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: OpoLive-Release-APK
         path: build/app/outputs/flutter-apk/app-release.apk
